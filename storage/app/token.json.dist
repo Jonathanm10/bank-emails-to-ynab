@@ -1,0 +1,8 @@
+{
+    "access_token": "xxx",
+    "expires_in": 3599,
+    "refresh_token": "xxx",
+    "scope": "https:\/\/www.googleapis.com\/auth\/gmail.readonly",
+    "token_type": "Bearer",
+    "created": 1690457959
+}
