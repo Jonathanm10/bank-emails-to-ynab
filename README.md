@@ -44,7 +44,7 @@ This guide will help you set up a Google Cloud Project, enable the Gmail API, an
 
 2. Click the settings icon (⚙️) at the top right corner, select 'Use your own OAuth credentials', and provide the OAuth2 Client ID and Client Secret from the credentials you created earlier.
 
-3. Under 'Step 1 - Select & authorize APIs', find 'Gmail API v1' from the list, select https://www.googleapis.com/auth/gmail.readonly (or other scopes based on your requirement), and click 'Authorize APIs'.
+3. Under 'Step 1 - Select & authorize APIs', find 'Gmail API v1' from the list, select https://www.googleapis.com/auth/gmail.readonly and https://www.googleapis.com/auth/gmail.modify, and click 'Authorize APIs'.
 
 4. Follow the prompts to select your Google account and grant permissions.
 

@@ -7,9 +7,9 @@ use App\Services\YNAB\YNABService;
 use App\ValueObjects\Transaction;
 use Exception;
 use Google_Service_Gmail;
+use Google_Service_Gmail_ModifyMessageRequest;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Storage;
 use LaravelZero\Framework\Commands\Command;
 
 class SyncCommand extends Command
@@ -24,12 +24,8 @@ class SyncCommand extends Command
      */
     public function handle(Google_Service_Gmail $gmail, YNABService $ynab): int
     {
-        $optParams = ['labelIds' => 'INBOX'];
-        if ($lastMessageId = Storage::get('lastMessageId.txt')) {
-            $optParams['q'] = "newer:$lastMessageId";
-        }
-
         $this->info('Fetching messages...');
+        $optParams = ['labelIds' => 'INBOX', 'q' => 'is:unread'];
         $messages = $gmail->users_messages->listUsersMessages('me', $optParams)->getMessages();
         if (empty($messages)) {
             $this->info('No new messages found.');
@@ -39,15 +35,10 @@ class SyncCommand extends Command
         $this->info('Found ' . count($messages) . ' messages.');
         $this->info('Fetching message contents...');
 
-        $lastMessageId = '';
         $transactions = collect();
         $ynabAccounts = $ynab->accounts();
-        foreach ($messages as $index => $message) {
+        foreach ($messages as $message) {
             $messageId = $message->getId();
-
-            if ($index === 0) {
-                $lastMessageId = $messageId;
-            }
 
             $msg = $gmail->users_messages->get('me', $messageId);
             $body = $this->extractBodyFromParts($msg->getPayload()->getParts());
@@ -57,11 +48,14 @@ class SyncCommand extends Command
             }
 
             $transaction = Transaction::fromBase64EncodedString($body);
-
             if (! $ynabAccounts->firstWhere('id', $transaction->accountId)) {
                 $this->error("No account found in YNAB with id {$transaction->accountId}");
                 continue;
             }
+
+            $mods = new Google_Service_Gmail_ModifyMessageRequest();
+            $mods->setRemoveLabelIds(['UNREAD']);
+            $gmail->users_messages->modify('me', $messageId, $mods);
 
             $this->info(sprintf(
                 "Found transaction for account %s for %s (%s)",
@@ -71,8 +65,6 @@ class SyncCommand extends Command
             ));
             $transactions->push(CreateTransactionData::fromTransaction($transaction));
         }
-
-        Storage::put('lastMessageId.txt', $lastMessageId);
 
         $this->info('Creating transactions...');
         $ynab->createTransactions($transactions);

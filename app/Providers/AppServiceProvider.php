@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
                 $client = new Google_Client();
 
                 $client->setAuthConfig(Storage::path('credentials.json'));
-                $client->addScope(Google_Service_Gmail::GMAIL_READONLY);
+                $client->setScopes([Google_Service_Gmail::GMAIL_READONLY, Google_Service_Gmail::GMAIL_MODIFY]);
                 $client->setAccessType('offline');
                 $client->setPrompt('select_account consent');
 

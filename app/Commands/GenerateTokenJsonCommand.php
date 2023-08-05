@@ -21,7 +21,7 @@ class GenerateTokenJsonCommand extends Command
      */
     public function handle(Google_Client $client): int
     {
-        $client->setScopes(Google_Service_Gmail::GMAIL_READONLY);
+        $client->setScopes([Google_Service_Gmail::GMAIL_READONLY, Google_Service_Gmail::GMAIL_MODIFY]);
         $client->setAuthConfig(Storage::path('credentials.json'));
         $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
