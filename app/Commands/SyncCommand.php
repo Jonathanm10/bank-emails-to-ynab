@@ -25,6 +25,11 @@ class SyncCommand extends Command
      */
     public function handle(Google_Service_Gmail $gmail, YNABService $ynab): int
     {
+        // For now ignore when no connection is available, but it may be better to be able to configure the behavior.
+        if (! $this->isInternetAvailable()) {
+            return Command::SUCCESS;
+        }
+
         $this->info('Fetching messages...');
         $optParams = ['labelIds' => 'INBOX', 'q' => 'is:unread'];
         $messages = $gmail->users_messages->listUsersMessages('me', $optParams)->getMessages();
@@ -112,5 +117,18 @@ class SyncCommand extends Command
         return collect($msg->getPayload()->getHeaders())
             ->where('name', 'Subject')
             ->first()['value'] ?? '';
+    }
+
+    protected function isInternetAvailable(): bool
+    {
+        $connected = @fsockopen('www.google.com', 80);
+
+        if ($connected) {
+            $isConnected = true;
+            fclose($connected);
+        } else {
+            $isConnected = false;
+        }
+        return $isConnected;
     }
 }
