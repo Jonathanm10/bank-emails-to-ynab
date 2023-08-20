@@ -6,6 +6,7 @@ use App\Data\YNAB\CreateTransactionData;
 use App\Services\YNAB\YNABService;
 use App\ValueObjects\Transaction;
 use Exception;
+use Google\Service\Gmail\Message;
 use Google_Service_Gmail;
 use Google_Service_Gmail_ModifyMessageRequest;
 use Illuminate\Console\Scheduling\Schedule;
@@ -41,6 +42,16 @@ class SyncCommand extends Command
             $messageId = $message->getId();
 
             $msg = $gmail->users_messages->get('me', $messageId);
+
+            $mods = new Google_Service_Gmail_ModifyMessageRequest();
+            $mods->setRemoveLabelIds(['UNREAD']);
+
+            $subject = $this->getSubject($msg);
+            if (! str_contains($subject, "Service d'information PostFinance")) {
+                $gmail->users_messages->modify('me', $messageId, $mods);
+                continue;
+            }
+
             $body = $this->extractBodyFromParts($msg->getPayload()->getParts());
             if ($body === '') {
                 $this->error("Could not get body for message $messageId");
@@ -53,8 +64,6 @@ class SyncCommand extends Command
                 continue;
             }
 
-            $mods = new Google_Service_Gmail_ModifyMessageRequest();
-            $mods->setRemoveLabelIds(['UNREAD']);
             $gmail->users_messages->modify('me', $messageId, $mods);
 
             $this->info(sprintf(
@@ -96,5 +105,12 @@ class SyncCommand extends Command
         if (config('app.email_output_on_failure')) {
             $scheduling->emailOutputOnFailure(config('app.email_output_on_failure'));
         }
+    }
+
+    public function getSubject(Message $msg): string
+    {
+        return collect($msg->getPayload()->getHeaders())
+            ->where('name', 'Subject')
+            ->first()['value'] ?? '';
     }
 }
