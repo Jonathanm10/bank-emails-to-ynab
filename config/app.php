@@ -70,4 +70,5 @@ return [
         App\Providers\AppServiceProvider::class,
     ],
 
+    'email_output_on_failure' => env('EMAIL_OUTPUT_ON_FAILURE', false),
 ];

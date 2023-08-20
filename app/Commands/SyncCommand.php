@@ -92,6 +92,9 @@ class SyncCommand extends Command
 
     public function schedule(Schedule $schedule): void
     {
-        $schedule->command(static::class)->everyTenMinutes();
+        $scheduling = $schedule->command(static::class)->everyTenMinutes();
+        if (config('app.email_output_on_failure')) {
+            $scheduling->emailOutputOnFailure(config('app.email_output_on_failure'));
+        }
     }
 }
