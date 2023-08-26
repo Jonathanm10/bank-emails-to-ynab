@@ -21,8 +21,8 @@ class Transaction
         preg_match('/compte ([\w-]+)/', $string, $accountMatches);
         $accountId = $accountMatches[1] ?? '';
 
-        preg_match('/montant de ([\d.]+)/', $string, $amountMatches);
-        $amount = $amountMatches[1] ?? '';
+        preg_match('/montant de ([\d.’]+)/u', $string, $amountMatches);
+        $amount = (float) array_key_exists(1, $amountMatches) ? str_replace('’', '', $amountMatches[1]) : 0;
 
         $isDebit = str_contains($string, 'au débit du compte');
 

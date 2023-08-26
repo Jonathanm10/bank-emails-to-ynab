@@ -17,3 +17,11 @@ it('should return positive amount when transaction is credit', function () {
 
     expect($transaction->signedAmountInMilliunits)->toBe(12600);
 });
+
+it('should read thousands separator', function () {
+    $transaction = Transaction::fromBase64EncodedString(
+        'VW4gbW9udGFudCBkZSA24oCZOTQwLjUwIGEgw6l0w6kgaW5zY3JpdCBhdSBjcsOpZGl0IGR1IGNvbXB0ZSBhYmMuIMOJdGF0IGFjdHVlbCBkdSBjb21wdGU6IENIRiAx4oCZMDc5LjMzLg=='
+    );
+
+    expect($transaction->signedAmountInMilliunits)->toBe(6940500);
+});
