@@ -40,7 +40,8 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($client->isAccessTokenExpired()) {
                     if ($refreshToken = $client->getRefreshToken()) {
-                        $client->fetchAccessTokenWithRefreshToken($refreshToken);
+                        $accessToken = $client->fetchAccessTokenWithRefreshToken($refreshToken);
+                        Storage::put('token.json', json_encode($accessToken, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
                     } else {
                         throw UnableToAuthenticateException::because('Unable to get refresh token.');
                     }
