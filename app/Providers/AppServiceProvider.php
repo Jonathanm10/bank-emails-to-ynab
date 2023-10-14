@@ -34,7 +34,6 @@ class AppServiceProvider extends ServiceProvider
                 $client->setPrompt('select_account consent');
 
                 if ($accessToken = Storage::get('token.json')) {
-                    $accessToken = json_decode($accessToken, true, 512, JSON_THROW_ON_ERROR);
                     $client->setAccessToken($accessToken);
                 }
 
