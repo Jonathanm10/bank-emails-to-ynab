@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 if ($client->isAccessTokenExpired()) {
-                    $refreshToken = $accessToken['refresh_token'] ?? null;
+                    $refreshToken = $client->getRefreshToken();
                     if ($refreshToken) {
                         $accessToken = $client->fetchAccessTokenWithRefreshToken($refreshToken);
                         // Check if an error occurred
