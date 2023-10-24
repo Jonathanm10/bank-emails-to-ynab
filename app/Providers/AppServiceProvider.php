@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
                     if ($refreshToken) {
                         $accessToken = $client->fetchAccessTokenWithRefreshToken($refreshToken);
                         // Check if an error occurred
-                        if (isset($newToken['error'])) {
-                            throw UnableToAuthenticateException::because($newToken['error_description']);
+                        if (isset($accessToken['error'])) {
+                            throw UnableToAuthenticateException::because($accessToken['error_description']);
                         }
                         Storage::put('token.json', json_encode($accessToken, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
                     } else {
